@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thoughts that fall</title>
+    
+    <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
+    
+    <!-- Meta tags -->
+    <meta charset="UTF-8">
+    <meta name="description" content="Quirky web page that allows users to type their thoughts and watch them fall away.">
+    <meta name="keywords" content="HTML,CSS,JavaScript,Thoughts,Fall">
+    <meta name="author" content="Alistair Impelido">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- OGG tags -->
+    <meta property="og:title" content="Thoughts that fall" />
+    <meta property="og:type" content="An online application users can type their thoughts into" />
+    
+    <!-- CSS link -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    
+    <!-- Jquery link -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <!-- Facebook Stuff -->
+<!--
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+-->
+    
+    <!-- Twitter -->
+<!--
+    <script>window.twttr = (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0],
+        t = window.twttr || {};
+      if (d.getElementById(id)) return t;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "https://platform.twitter.com/widgets.js";
+      fjs.parentNode.insertBefore(js, fjs);
+
+      t._e = [];
+      t.ready = function(f) {
+        t._e.push(f);
+      };
+      return t;
+    }(document, "script", "twitter-wjs"));</script>
+    
+-->
+    <!-- Header of page contains instructions and mute button for audio -->
+    <header>
+        <h1>Type your thoughts. <br>Then hit enter or space.</h1>
+        <img src="audio_on.png" alt="mute button" id="mute">
+    </header>
+    
+    <!-- Video background, start automatically and loop it -->
+    <video autoplay loop muted>
+        <source src="video1_2.mp4" type="video/mp4"> 
+    </video>
+    
+    <!-- Empty div that will populate when user types -->
+    <div id="show"></div>
+    
+    <!-- Audio controls, autoplay it and loop -->
+    <audio loop id="audio">
+      <source src="thoughts.mp3" type="audio/mpeg">
+      Your browser does not support the audio tag.
+    </audio>
+    
+    
+    <!-- Javascript and Jquery portion -->
+    <script>
+        $("#mute").on('click', function () {
+            //if audio is not muted on click, mute it
+            if ($(audio).prop("muted")) {
+                $(audio).prop("muted", false);
+                //we then change the audio button image to unmuted
+                $("#mute").prop("src","audio_on.png")
+            } 
+            //if audio is muted then turn volume on    
+            else {
+                $(audio).prop("muted", true);
+                //changing the image to muted version
+                $("#mute").prop("src","audio_off.png")
+            }     
+        });
+
+    //Create counter to make different divs
+    var counter = 0;
+
+    //Font size variable for screen size change
+    var fontchange= "";
+
+    // In the window, an event listener is checking for when we press a key
+    $(window).on("keydown", function(e){
+        //start audio after user presses button
+        $('#audio').get(0).play()
+        // We are checking that keys arent spaces, alt, windows button, control button, backspaces, etc.
+        if(e.keyCode != 17 && e.keyCode != 18 && e.keyCode != 18 && e.keyCode != 32 && e.keyCode != 8 && e.keyCode != 13 && e.keyCode != 16 && e.keyCode != 20 && e.keyCode != 91 && e.keyCode != 38 && e.keyCode != 40 && e.keyCode != 39 && e.keyCode != 37 && e.keyCode != 36 && e.keyCode != 35 && e.keyCode != 34 && e.keyCode != 46 && e.keyCode != 33 && e.keyCode != 9 && e.keyCode != 93 && e.keyCode != 27 && e.keyCode != 12){
+            $("#show").append(e.key);
+
+        }else if(e.keyCode == 8){ // creating a backspace event, where we take away the last letter
+            $("#show").text(function (_,txt){
+                return txt.slice(0, -1);    
+            });
+        }else if(e.keyCode == 32 || e.keyCode == 13){   // if a key is a space then we clear the show div
+            //adding div to html body
+            $('body').append('<div id="box' + counter + '"></div>');
+
+            //Making content of multiple divs the same as the show div
+            $("#box" + counter).html($('#show').html());
+
+            //If statement to check if screen is 800px width or not
+            if($(window).width() < 800){
+                fontchange = "5";
+            }else{
+                fontchange = "3";
+            }
+
+            // Making CSS of cloned divs the same as what the user inputs
+            $("#box" + counter).css({"top": "50%", "left": "50%", "transform": "translate(-50%, -50%)", "position": "fixed", "display": "none", "font-size": fontchange + "vw", "z-index": "4"});
+
+            //Showing the cloned div and resetting the empty div
+            $('#box'+counter).css("display", "block");
+            $('#show').empty("");
+
+            //Animate the cloned div falling down, after it leaves the screen, remove it, removes clutter on html
+            $('#box' + counter).animate({top:'105vh'}, 5000, 'swing', function () {
+                $(this).remove();        
+            });
+            // Having a counter accomodates for a user who types words fast, we can have multiple words on the screen
+            counter += 1;
+        }
+    });
+    </script>
+</body>
+</html>
